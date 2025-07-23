@@ -1,0 +1,194 @@
+# VoIPmonitor C++ Network Packet Sniffer - Cursor Rules
+
+## Project Overview
+This is VoIPmonitor, a high-performance C++ network packet sniffer for VoIP protocols (SIP, RTP, RTCP, SKINNY/SCCP). It's designed for real-time network analysis, call quality monitoring, and telecommunications data processing.
+
+## Code Style & Standards
+
+### C++ Standards
+- Use C++11/14 features where appropriate
+- Follow RAII principles for resource management
+- Prefer stack allocation over heap when possible
+- Use smart pointers for dynamic memory management
+- Maintain thread safety in multi-threaded contexts
+
+### Naming Conventions
+- Classes: PascalCase (e.g., `CallTable`, `PcapQueue`)
+- Functions/methods: camelCase or snake_case (follow existing patterns)
+- Variables: snake_case for local variables, camelCase for members
+- Constants: UPPER_SNAKE_CASE
+- File names: snake_case.cpp/.h
+
+### Header Files
+- Always use include guards (`#ifndef HEADER_H` / `#define HEADER_H` / `#endif`)
+- Forward declarations in headers when possible
+- Include order: system headers, then project headers
+- Separate interface (.h) from implementation (.cpp)
+
+## Architecture Patterns
+
+### Memory Management
+- Use RAII for automatic resource cleanup
+- Implement proper copy constructors and assignment operators
+- Consider move semantics for performance-critical code
+- Use memory pools for high-frequency allocations
+- Be mindful of memory leaks in long-running network services
+
+### Threading & Concurrency
+- Use pthread primitives or C++11 threading facilities
+- Implement proper synchronization with mutexes/locks
+- Consider lock-free data structures for performance
+- Use atomic operations for shared counters/flags
+- Implement proper cleanup in thread termination
+
+### Network Programming
+- Handle endianness conversion properly
+- Validate all network input data
+- Implement proper error handling for socket operations
+- Use non-blocking I/O where appropriate
+- Consider packet processing pipeline architecture
+
+## Performance Considerations
+
+### High-Performance Network Processing
+- Minimize memory allocations in packet processing paths
+- Use efficient data structures (vectors over lists for cache locality)
+- Consider SIMD instructions for bulk data operations
+- Implement zero-copy techniques where possible
+- Profile and optimize hot paths
+
+### Database Operations
+- Use prepared statements for MySQL operations
+- Implement connection pooling
+- Batch database operations when possible
+- Handle database reconnection gracefully
+- Consider asynchronous database writes
+
+## Error Handling
+
+### Network Errors
+- Handle partial reads/writes properly
+- Implement timeout mechanisms
+- Gracefully handle network disconnections
+- Log network errors with appropriate detail
+- Implement retry logic with exponential backoff
+
+### System Errors
+- Check return values of all system calls
+- Use errno for system error reporting
+- Implement proper signal handling
+- Handle resource exhaustion gracefully
+- Provide meaningful error messages
+
+## Build System & Dependencies
+
+### Autotools Integration
+- Maintain configure.in for dependency detection
+- Update Makefile.in for new source files
+- Handle conditional compilation for optional features
+- Ensure cross-platform compatibility (Linux/FreeBSD)
+
+### Dependencies
+- MySQL/MariaDB client libraries
+- libpcap for packet capture
+- OpenSSL for cryptographic operations
+- Various audio codec libraries
+- RRD tools for statistics
+- JSON libraries for configuration
+
+## Security Considerations
+
+### Network Security
+- Validate all packet data before processing
+- Implement bounds checking for buffer operations
+- Handle malformed packets gracefully
+- Sanitize data before database insertion
+- Implement proper SSL/TLS handling
+
+### Privilege Management
+- Drop privileges after initialization when possible
+- Validate file permissions before access
+- Implement secure temporary file handling
+- Audit sensitive operations
+
+## Testing & Debugging
+
+### Unit Testing
+- Create tests for packet parsing functions
+- Test edge cases and malformed input
+- Verify thread safety of concurrent operations
+- Test database operations with mock data
+
+### Debugging
+- Use appropriate logging levels (debug, info, warning, error)
+- Implement structured logging for network events
+- Use debugging symbols in development builds
+- Consider memory debugging tools (valgrind, AddressSanitizer)
+
+## Documentation
+
+### Code Documentation
+- Document complex algorithms and data structures
+- Explain protocol-specific implementations
+- Document thread safety guarantees
+- Include performance considerations in comments
+
+### Configuration
+- Document all configuration parameters
+- Provide examples for common use cases
+- Explain performance implications of settings
+- Document network requirements and firewall rules
+
+## File Organization
+
+### Source Structure
+- Keep related functionality in dedicated files
+- Separate protocol handlers into individual modules
+- Maintain clear separation between network and database layers
+- Group utility functions in tools.cpp/tools.h
+
+### Headers
+- Use forward declarations to reduce compilation dependencies
+- Keep public interfaces clean and minimal
+- Separate internal implementation details
+- Maintain consistent include patterns
+
+## Specific VoIPmonitor Patterns
+
+### Packet Processing
+- Follow the existing packet processing pipeline
+- Implement proper RTP/RTCP sequence handling
+- Handle SIP message parsing correctly
+- Maintain call state consistency
+
+### Call Management
+- Use the CallTable pattern for call tracking
+- Implement proper call lifecycle management
+- Handle call transfers and redirections
+- Maintain accurate call statistics
+
+### Configuration Management
+- Use the existing config_param system
+- Implement hot-reload capabilities where appropriate
+- Validate configuration parameters
+- Provide sensible defaults
+
+## Common Pitfalls to Avoid
+
+- Don't block the main packet processing thread
+- Avoid excessive memory allocations in hot paths
+- Don't ignore return values from system calls
+- Avoid hardcoded buffer sizes for network data
+- Don't assume network byte order matches host order
+- Avoid race conditions in multi-threaded code
+- Don't leak file descriptors or network sockets
+
+## When Adding New Features
+
+1. Consider impact on packet processing performance
+2. Ensure thread safety in multi-threaded contexts
+3. Add appropriate configuration parameters
+4. Implement proper error handling and logging
+5. Update relevant documentation
+6. Consider backward compatibility
+7. Test with various network conditions and packet types
