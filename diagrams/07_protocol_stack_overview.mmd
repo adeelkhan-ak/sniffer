@@ -1,0 +1,81 @@
+graph TD
+    A[Network Layer] --> B[Ethernet Frame]
+    B --> C[IP Packet]
+    C --> D{Transport Protocol}
+    
+    D --> E[UDP]
+    D --> F[TCP]
+    D --> G[SCTP]
+    
+    E --> H{Application Protocol}
+    F --> I{Application Protocol}
+    G --> J{Application Protocol}
+    
+    %% UDP-based protocols
+    H --> K[SIP]
+    H --> L[RTP]
+    H --> M[RTCP]
+    H --> N[STUN/TURN]
+    H --> O[DHCP]
+    
+    %% TCP-based protocols
+    I --> P[SIP over TCP]
+    I --> Q[HTTP/WebRTC]
+    I --> R[WebSocket]
+    I --> S[Diameter]
+    
+    %% SCTP-based protocols
+    J --> T[SS7/SIGTRAN]
+    J --> U[Diameter over SCTP]
+    
+    %% Protocol Processing
+    K --> V[SIP Parser]
+    L --> W[RTP Processor]
+    M --> X[RTCP Analyzer]
+    N --> Y[NAT Traversal]
+    P --> V
+    Q --> Z[WebRTC Handler]
+    R --> AA[WebSocket Parser]
+    S --> BB[AAA Processing]
+    T --> CC[SS7 Handler]
+    
+    %% Specialized Protocols
+    H --> DD[MGCP]
+    I --> EE[SKINNY/SCCP]
+    DD --> FF[MGCP Parser]
+    EE --> GG[SKINNY Handler]
+    
+    %% Security Layers
+    F --> HH[TLS/SSL]
+    HH --> II[Encrypted Traffic]
+    II --> JJ[SSL Decryption]
+    JJ --> I
+    
+    L --> KK[SRTP]
+    KK --> LL[Encrypted RTP]
+    LL --> MM[SRTP Decryption]
+    MM --> W
+    
+    %% Quality of Service
+    C --> NN[DSCP Marking]
+    NN --> OO[QoS Analysis]
+    
+    %% Fragmentation Handling
+    C --> PP[IP Fragmentation]
+    PP --> QQ[Fragment Reassembly]
+    QQ --> D
+    
+    %% Styling
+    classDef network fill:#e1f5fe
+    classDef transport fill:#f3e5f5
+    classDef application fill:#e8f5e8
+    classDef voip fill:#fff3e0
+    classDef security fill:#ffebee
+    classDef processing fill:#fce4ec
+    
+    class A,B,C network
+    class D,E,F,G transport
+    class H,I,J,HH application
+    class K,L,M,N,O,P,Q,R,S,T,U,DD,EE voip
+    class II,JJ,KK,LL,MM security
+    class V,W,X,Y,Z,AA,BB,CC,FF,GG,NN,OO,PP,QQ processing

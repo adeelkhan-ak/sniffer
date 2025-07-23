@@ -1,0 +1,73 @@
+graph TD
+    A[Incoming Traffic] --> B[SSL/TLS Detection]
+    A --> C[SIP Message Analysis]
+    A --> D[Registration Monitor]
+    
+    B --> E[Certificate Validation]
+    B --> F[Session Key Extraction]
+    E --> G[TLS Decryption]
+    F --> G
+    G --> H[Decrypted Traffic]
+    H --> C
+    
+    C --> I[Call Pattern Analysis]
+    C --> J[Geographic Analysis]
+    C --> K[Rate Limiting Check]
+    
+    D --> L[Registration Frequency]
+    D --> M[User Agent Analysis]
+    D --> N[Authentication Failures]
+    
+    I --> O{Fraud Indicators}
+    J --> O
+    K --> O
+    L --> O
+    M --> O
+    N --> O
+    
+    O -->|Suspicious| P[Fraud Alert Generation]
+    O -->|Normal| Q[Continue Processing]
+    
+    P --> R[Alert Classification]
+    R --> S[Call Pattern Fraud]
+    R --> T[Geographic Anomaly]
+    R --> U[Registration Abuse]
+    R --> V[Rate Limit Violation]
+    
+    S --> W[Database Logging]
+    T --> W
+    U --> W
+    V --> W
+    
+    W --> X[Real-time Notifications]
+    W --> Y[Report Generation]
+    W --> Z[Blocking Actions]
+    
+    %% SRTP Security
+    H --> AA[SRTP Stream Detection]
+    AA --> BB[Key Derivation]
+    BB --> CC[Media Decryption]
+    CC --> DD[Secure Audio Analysis]
+    
+    %% Advanced Fraud Detection
+    I --> EE[Machine Learning Models]
+    EE --> FF[Pattern Recognition]
+    EE --> GG[Anomaly Detection]
+    FF --> O
+    GG --> O
+    
+    %% Styling
+    classDef input fill:#e1f5fe
+    classDef security fill:#ffebee
+    classDef analysis fill:#f3e5f5
+    classDef detection fill:#fff3e0
+    classDef alerts fill:#fce4ec
+    classDef advanced fill:#e8f5e8
+    
+    class A,H input
+    class B,E,F,G,AA,BB,CC,DD security
+    class C,I,J,K,D,L,M,N analysis
+    class O,P,R,S,T,U,V detection
+    class W,X,Y,Z alerts
+    class EE,FF,GG advanced
+    class Q processing

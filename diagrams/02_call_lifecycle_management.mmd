@@ -1,0 +1,46 @@
+graph TD
+    A[SIP INVITE] --> B[Create Call Object]
+    B --> C[Parse SDP]
+    C --> D[Setup RTP Streams]
+    D --> E{Call State}
+    
+    E --> F[RINGING 18x]
+    E --> G[ANSWERED 200]
+    E --> H[REJECTED 4xx/5xx]
+    
+    F --> I[Wait for Answer]
+    G --> J[Active Call]
+    H --> K[Call Cleanup]
+    
+    I --> G
+    I --> H
+    
+    J --> L[RTP Processing]
+    L --> M[Quality Analysis]
+    M --> N[RTCP Feedback]
+    
+    J --> O[SIP BYE]
+    O --> P[Call Termination]
+    P --> Q[CDR Generation]
+    Q --> K
+    
+    %% Additional call flows
+    J --> R[Call Transfer]
+    J --> S[Call Hold]
+    R --> T[New Call Leg]
+    S --> U[Resume Call]
+    T --> J
+    U --> J
+    
+    %% Styling
+    classDef initiation fill:#e3f2fd
+    classDef processing fill:#f1f8e9
+    classDef active fill:#e8f5e8
+    classDef termination fill:#ffebee
+    classDef quality fill:#fff3e0
+    
+    class A,B,C,D initiation
+    class E,F,G,H processing
+    class I,J,R,S,T,U active
+    class O,P,Q,K termination
+    class L,M,N quality

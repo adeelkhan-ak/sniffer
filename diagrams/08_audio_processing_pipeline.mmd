@@ -1,0 +1,90 @@
+graph TD
+    A[RTP Audio Packet] --> B{Codec Detection}
+    
+    B --> C[G.711 A-law]
+    B --> D[G.711 μ-law]
+    B --> E[G.729]
+    B --> F[G.722]
+    B --> G[G.723]
+    B --> H[Other Codecs]
+    
+    C --> I[A-law Decoder]
+    D --> J[μ-law Decoder]
+    E --> K[G.729 Decoder]
+    F --> L[G.722 Decoder]
+    G --> M[G.723 Decoder]
+    H --> N[Generic Decoder]
+    
+    I --> O[PCM Audio Data]
+    J --> O
+    K --> O
+    L --> O
+    M --> O
+    N --> O
+    
+    O --> P[Jitter Buffer]
+    P --> Q[Buffer Management]
+    Q --> R{Buffer State}
+    
+    R --> S[Underrun]
+    R --> T[Normal]
+    R --> U[Overrun]
+    
+    S --> V[Packet Loss Concealment]
+    T --> W[Audio Output]
+    U --> X[Buffer Adjustment]
+    
+    V --> W
+    X --> W
+    
+    W --> Y[Audio Analysis]
+    Y --> Z[Volume Analysis]
+    Y --> AA[Frequency Analysis]
+    Y --> BB[DTMF Detection]
+    Y --> CC[Voice Activity Detection]
+    
+    Z --> DD[Audio Quality Metrics]
+    AA --> DD
+    BB --> EE[DTMF Events]
+    CC --> FF[Silence Detection]
+    
+    DD --> GG[MOS Calculation]
+    DD --> HH[SNR Analysis]
+    
+    %% Audio Recording
+    W --> II[Audio Recording]
+    II --> JJ{Recording Format}
+    JJ --> KK[WAV Format]
+    JJ --> LL[OGG Format]
+    JJ --> MM[MP3 Format]
+    
+    KK --> NN[File Storage]
+    LL --> NN
+    MM --> NN
+    
+    %% Audio Mixing
+    W --> OO[Multi-channel Mixing]
+    OO --> PP[Channel 1]
+    OO --> QQ[Channel 2]
+    PP --> RR[Mixed Audio]
+    QQ --> RR
+    
+    %% Transcription
+    W --> SS[Speech Recognition]
+    SS --> TT[Audio Transcription]
+    TT --> UU[Text Output]
+    
+    %% Styling
+    classDef input fill:#e1f5fe
+    classDef codec fill:#f3e5f5
+    classDef processing fill:#e8f5e8
+    classDef buffer fill:#fff3e0
+    classDef analysis fill:#ffebee
+    classDef output fill:#fce4ec
+    
+    class A input
+    class B,C,D,E,F,G,H,I,J,K,L,M,N codec
+    class O,P,Q,R,S,T,U,V,W,X processing
+    class buffer
+    class Y,Z,AA,BB,CC,DD,EE,FF,GG,HH analysis
+    class II,JJ,KK,LL,MM,NN,OO,PP,QQ,RR,SS,TT,UU output

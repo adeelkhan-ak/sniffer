@@ -1,0 +1,71 @@
+graph TD
+    A[Main Thread] --> B[Packet Capture Thread]
+    A --> C[Management Thread]
+    A --> D[Database Store Threads]
+    A --> E[Cleanup Thread]
+    A --> F[RRD Statistics Thread]
+    
+    B --> G[Pre-process Thread]
+    G --> H[Process Thread Pool]
+    H --> I[RTP Thread Pool]
+    
+    %% Packet Processing Pipeline
+    H --> J[SIP Processing]
+    H --> K[Protocol Analysis]
+    H --> L[TCP Reassembly]
+    
+    I --> M[Audio Processing]
+    I --> N[Quality Analysis]
+    I --> O[DTMF Detection]
+    
+    %% Call Management
+    J --> P[Call Management]
+    K --> P
+    L --> P
+    
+    M --> Q[Statistics Collection]
+    N --> Q
+    O --> Q
+    
+    %% Storage and Management
+    P --> D
+    Q --> D
+    
+    C --> R[TCP Management Interface]
+    C --> S[Configuration Reload]
+    
+    E --> T[File Cleanup]
+    E --> U[Memory Cleanup]
+    E --> V[Call Cleanup]
+    
+    F --> W[Performance Metrics]
+    F --> X[System Statistics]
+    
+    %% Thread Synchronization
+    H --> Y[Thread Pool Manager]
+    I --> Y
+    Y --> Z[Load Balancing]
+    Y --> AA[Thread Affinity]
+    
+    %% Inter-thread Communication
+    B --> BB[Lock-free Queues]
+    G --> BB
+    H --> BB
+    I --> BB
+    BB --> CC[Memory Barriers]
+    BB --> DD[Atomic Operations]
+    
+    %% Styling
+    classDef mainThread fill:#e1f5fe
+    classDef captureThread fill:#f3e5f5
+    classDef processThread fill:#e8f5e8
+    classDef storageThread fill:#fff3e0
+    classDef managementThread fill:#ffebee
+    classDef syncThread fill:#fce4ec
+    
+    class A mainThread
+    class B,G captureThread
+    class H,I,J,K,L,M,N,O processThread
+    class D,P,Q storageThread
+    class C,E,F,R,S,T,U,V,W,X managementThread
+    class Y,Z,AA,BB,CC,DD syncThread
