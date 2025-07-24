@@ -1,0 +1,61 @@
+graph TD
+    A[RTP Packet] --> B[Sequence Check]
+    B --> C[Timestamp Analysis]
+    C --> D[Payload Extraction]
+    
+    D --> E{Codec Type}
+    E --> F[G.711 A-law]
+    E --> G[G.711 μ-law]
+    E --> H[G.729]
+    E --> I[G.722]
+    E --> J[Other Codecs]
+    
+    F --> K[Audio Decode]
+    G --> K
+    H --> K
+    I --> K
+    J --> K
+    
+    K --> L[Jitter Buffer]
+    L --> M[Quality Metrics]
+    M --> N[MOS Calculation]
+    
+    B --> O[Packet Loss Detection]
+    C --> P[Jitter Calculation]
+    O --> M
+    P --> M
+    
+    %% SRTP Processing
+    A --> Q{Encrypted?}
+    Q -->|Yes| R[SRTP Decryption]
+    Q -->|No| B
+    R --> S[Key Derivation]
+    S --> T[Decrypt Payload]
+    T --> B
+    
+    %% Quality Analysis
+    M --> U[Delay Variation]
+    M --> V[Packet Loss Rate]
+    M --> W[Burst Loss]
+    U --> N
+    V --> N
+    W --> N
+    
+    N --> X[Database Storage]
+    N --> Y[Real-time Monitoring]
+    N --> Z[Alert Generation]
+    
+    %% Styling
+    classDef input fill:#e1f5fe
+    classDef processing fill:#f3e5f5
+    classDef codec fill:#e8f5e8
+    classDef quality fill:#fff3e0
+    classDef security fill:#ffebee
+    classDef output fill:#fce4ec
+    
+    class A,Q input
+    class B,C,D,L processing
+    class E,F,G,H,I,J,K codec
+    class M,N,O,P,U,V,W quality
+    class R,S,T security
+    class X,Y,Z output

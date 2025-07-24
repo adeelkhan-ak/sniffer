@@ -1,0 +1,66 @@
+graph TD
+    A[Processing Threads] --> B[SQL Queue]
+    B --> C[Database Connection Pool]
+    C --> D[MySQL/MariaDB]
+    
+    B --> E{Data Type}
+    E --> F[CDR Data]
+    E --> G[SIP Messages]
+    E --> H[RTP Statistics]
+    E --> I[Registration Data]
+    E --> J[Fraud Events]
+    E --> K[RTCP Reports]
+    E --> L[Audio Files]
+    
+    F --> M[cdr Table]
+    G --> N[message Table]
+    H --> O[rtp_stat Table]
+    I --> P[register Table]
+    J --> Q[fraud_alert Table]
+    K --> R[rtcp_stat Table]
+    L --> S[File Storage]
+    
+    M --> D
+    N --> D
+    O --> D
+    P --> D
+    Q --> D
+    R --> D
+    S --> T[Filesystem]
+    
+    %% Connection Pool Management
+    C --> U[Connection 1]
+    C --> V[Connection 2]
+    C --> W[Connection N]
+    U --> D
+    V --> D
+    W --> D
+    
+    %% Database Operations
+    D --> X[Partitioning]
+    X --> Y[Daily Partitions]
+    X --> Z[Monthly Archives]
+    
+    D --> AA[Cleanup Process]
+    AA --> BB[Old Data Removal]
+    AA --> CC[Index Optimization]
+    
+    %% Backup and Replication
+    D --> DD[Master Database]
+    DD --> EE[Slave Replication]
+    DD --> FF[Backup Process]
+    
+    %% Styling
+    classDef processing fill:#e1f5fe
+    classDef queue fill:#f3e5f5
+    classDef database fill:#e8f5e8
+    classDef tables fill:#fff3e0
+    classDef management fill:#ffebee
+    classDef storage fill:#fce4ec
+    
+    class A processing
+    class B,E queue
+    class C,D,DD database
+    class F,G,H,I,J,K,L,M,N,O,P,Q,R tables
+    class U,V,W,X,Y,Z,AA,BB,CC management
+    class S,T,EE,FF storage

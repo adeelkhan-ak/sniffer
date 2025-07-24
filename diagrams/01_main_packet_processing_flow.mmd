@@ -1,0 +1,35 @@
+graph TD
+    A[Network Interface] --> B[libpcap Capture]
+    B --> C[Packet Queue]
+    C --> D{Protocol Detection}
+    
+    D --> E[SIP Processing]
+    D --> F[RTP Processing]
+    D --> G[RTCP Processing]
+    D --> H[Other Protocols]
+    
+    E --> I[Call Management]
+    F --> J[Audio Analysis]
+    G --> J
+    H --> K[Protocol Handlers]
+    
+    I --> L[Database Storage]
+    J --> L
+    K --> L
+    
+    L --> M[CDR Generation]
+    L --> N[Statistics]
+    L --> O[Fraud Detection]
+    
+    %% Styling
+    classDef networkLayer fill:#e1f5fe
+    classDef protocolLayer fill:#f3e5f5
+    classDef processingLayer fill:#e8f5e8
+    classDef storageLayer fill:#fff3e0
+    classDef outputLayer fill:#fce4ec
+    
+    class A,B,C networkLayer
+    class D,E,F,G,H protocolLayer
+    class I,J,K processingLayer
+    class L storageLayer
+    class M,N,O outputLayer

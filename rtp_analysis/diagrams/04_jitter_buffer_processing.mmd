@@ -1,0 +1,185 @@
+graph TD
+    A[RTP Packet Arrives] --> B[Extract Packet Info]
+    B --> C[Sequence Number]
+    B --> D[Timestamp]
+    B --> E[Payload Data]
+    B --> F[Codec Type]
+    
+    C --> G[Create AST Frame]
+    D --> G
+    E --> G
+    F --> G
+    
+    G --> H[Set Frame Properties]
+    H --> I[frametype = AST_FRAME_VOICE]
+    H --> J[subclass.codec = codec]
+    H --> K[data.ptr = payload_data]
+    H --> L[datalen = payload_len]
+    H --> M[samples = calculated_samples]
+    H --> N[seq = sequence_number]
+    H --> O[ts = timestamp]
+    
+    I --> P[Multiple Jitter Buffer Instances]
+    J --> P
+    K --> P
+    L --> P
+    M --> P
+    N --> P
+    O --> P
+    
+    P --> Q[Fixed Buffer 200ms - F1]
+    P --> R[Fixed Buffer 500ms - F2]
+    P --> S[Adaptive Buffer - AD]
+    
+    Q --> T[ast_jb_put Channel F1]
+    R --> U[ast_jb_put Channel F2]
+    S --> V[ast_jb_put Channel AD]
+    
+    T --> W[JB Implementation F1]
+    U --> X[JB Implementation F2]
+    V --> Y[JB Implementation AD]
+    
+    W --> Z{Buffer State F1}
+    X --> AA{Buffer State F2}
+    Y --> BB{Buffer State AD}
+    
+    Z -->|JB_IMPL_OK| CC[Frame Buffered F1]
+    Z -->|JB_IMPL_DROP| DD[Frame Dropped F1]
+    Z -->|JB_IMPL_INTERP| EE[Interpolation Needed F1]
+    
+    AA -->|JB_IMPL_OK| FF[Frame Buffered F2]
+    AA -->|JB_IMPL_DROP| GG[Frame Dropped F2]
+    AA -->|JB_IMPL_INTERP| HH[Interpolation Needed F2]
+    
+    BB -->|JB_IMPL_OK| II[Frame Buffered AD]
+    BB -->|JB_IMPL_DROP| JJ[Frame Dropped AD]
+    BB -->|JB_IMPL_INTERP| KK[Interpolation Needed AD]
+    
+    CC --> LL[ast_jb_read F1]
+    DD --> MM[Update Drop Stats F1]
+    EE --> NN[Generate Silence F1]
+    
+    FF --> OO[ast_jb_read F2]
+    GG --> PP[Update Drop Stats F2]
+    HH --> QQ[Generate Silence F2]
+    
+    II --> RR[ast_jb_read AD]
+    JJ --> SS[Update Drop Stats AD]
+    KK --> TT[Generate Silence AD]
+    
+    LL --> UU{Frame Available F1?}
+    OO --> VV{Frame Available F2?}
+    RR --> WW{Frame Available AD?}
+    
+    UU -->|Yes| XX[Process Frame F1]
+    UU -->|No| YY[Wait for More Packets F1]
+    
+    VV -->|Yes| ZZ[Process Frame F2]
+    VV -->|No| AAA[Wait for More Packets F2]
+    
+    WW -->|Yes| BBB[Process Frame AD]
+    WW -->|No| CCC[Wait for More Packets AD]
+    
+    XX --> DDD[Audio Processing F1]
+    ZZ --> EEE[Audio Processing F2]
+    BBB --> FFF[Audio Processing AD]
+    
+    DDD --> GGG[Calculate Quality Metrics F1]
+    EEE --> HHH[Calculate Quality Metrics F2]
+    FFF --> III[Calculate Quality Metrics AD]
+    
+    %% Buffer Management
+    LL --> JJJ[Buffer Size Management F1]
+    OO --> KKK[Buffer Size Management F2]
+    RR --> LLL[Buffer Size Management AD]
+    
+    JJJ --> MMM{Buffer Full F1?}
+    KKK --> NNN{Buffer Full F2?}
+    LLL --> OOO{Buffer Full AD?}
+    
+    MMM -->|Yes| PPP[Drop Oldest Frame F1]
+    MMM -->|No| CC
+    
+    NNN -->|Yes| QQQ[Drop Oldest Frame F2]
+    NNN -->|No| FF
+    
+    OOO -->|Yes| RRR[Adaptive Resize AD]
+    OOO -->|No| II
+    
+    %% Synchronization
+    GGG --> SSS[Burst Loss Analysis F1]
+    HHH --> TTT[Burst Loss Analysis F2]
+    III --> UUU[Burst Loss Analysis AD]
+    
+    SSS --> VVV[burstr_calculate F1]
+    TTT --> WWW[burstr_calculate F2]
+    UUU --> XXX[burstr_calculate AD]
+    
+    VVV --> YYY[Loss Ratio F1]
+    VVV --> ZZZ[Burst Ratio F1]
+    
+    WWW --> AAAA[Loss Ratio F2]
+    WWW --> BBBB[Burst Ratio F2]
+    
+    XXX --> CCCC[Loss Ratio AD]
+    XXX --> DDDD[Burst Ratio AD]
+    
+    %% Packet Loss Concealment
+    NN --> EEEE[Generate Silence Frame F1]
+    QQ --> FFFF[Generate Silence Frame F2]
+    TT --> GGGG[Generate Silence Frame AD]
+    
+    EEEE --> HHHH[Codec-Specific Silence F1]
+    FFFF --> IIII[Codec-Specific Silence F2]
+    GGGG --> JJJJ[Codec-Specific Silence AD]
+    
+    HHHH --> KKKK{Codec Type F1}
+    IIII --> LLLL{Codec Type F2}
+    JJJJ --> MMMM{Codec Type AD}
+    
+    KKKK -->|G.711| NNNN[Generate G.711 Silence F1]
+    KKKK -->|G.729| OOOO[Generate G.729 Silence F1]
+    
+    LLLL -->|G.711| PPPP[Generate G.711 Silence F2]
+    LLLL -->|G.729| QQQQ[Generate G.729 Silence F2]
+    
+    MMMM -->|G.711| RRRR[Generate G.711 Silence AD]
+    MMMM -->|G.729| SSSS[Generate G.729 Silence AD]
+    
+    %% Final Quality Calculation
+    YYY --> TTTT[MOS Calculation F1]
+    ZZZ --> TTTT
+    
+    AAAA --> UUUU[MOS Calculation F2]
+    BBBB --> UUUU
+    
+    CCCC --> VVVV[MOS Calculation AD]
+    DDDD --> VVVV
+    
+    TTTT --> WWWW[Store MOS F1 Result]
+    UUUU --> XXXX[Store MOS F2 Result]
+    VVVV --> YYYY[Store MOS AD Result]
+    
+    %% Cleanup
+    XX --> ZZZZ[ast_frfree F1]
+    ZZ --> AAAAA[ast_frfree F2]
+    BBB --> BBBBB[ast_frfree AD]
+    
+    %% Styling
+    classDef input fill:#e1f5fe
+    classDef frame fill:#f3e5f5
+    classDef buffer fill:#e8f5e8
+    classDef processing fill:#fff3e0
+    classDef quality fill:#ffebee
+    classDef concealment fill:#fce4ec
+    classDef management fill:#e0f2f1
+    classDef output fill:#f8bbd9
+    
+    class A,B,C,D,E,F input
+    class G,H,I,J,K,L,M,N,O frame
+    class P,Q,R,S,T,U,V,W,X,Y buffer
+    class Z,AA,BB,CC,DD,EE,FF,GG,HH,II,JJ,KK processing
+    class GGG,HHH,III,SSS,TTT,UUU,VVV,WWW,XXX quality
+    class NN,QQ,TT,EEEE,FFFF,GGGG,HHHH,IIII,JJJJ concealment
+    class JJJ,KKK,LLL,MMM,NNN,OOO,PPP,QQQ,RRR management
+    class TTTT,UUUU,VVVV,WWWW,XXXX,YYYY output
