@@ -1,0 +1,110 @@
+graph TD
+    A[SIP INVITE] --> B[Parse SDP Content]
+    B --> C[Extract Media Information]
+    C --> D[Audio Media Line]
+    C --> E[Video Media Line]
+    C --> F[Other Media Types]
+    
+    D --> G[Extract Audio Parameters]
+    G --> H[Connection IP Address]
+    G --> I[Port Number]
+    G --> J[Codec Information]
+    G --> K[RTP Map]
+    
+    H --> L[Create IP:Port Entry]
+    I --> L
+    J --> M[Codec Negotiation]
+    K --> M
+    
+    L --> N[Add to Expected Streams]
+    M --> N
+    
+    N --> O[SIP Call Established]
+    O --> P[Wait for RTP Packets]
+    
+    P --> Q[RTP Packet Arrives]
+    Q --> R[Extract Packet Info]
+    R --> S[Source IP:Port]
+    R --> T[Destination IP:Port]
+    R --> U[SSRC Identifier]
+    
+    S --> V[Match Against SDP]
+    T --> V
+    V --> W{Match Found?}
+    
+    W -->|Yes| X[Associate with Call]
+    W -->|No| Y[Create New Association]
+    
+    X --> Z[Determine Direction]
+    Y --> AA[Add to Unknown Streams]
+    AA --> BB[Attempt Late Binding]
+    BB --> Z
+    
+    Z --> CC{Caller or Called?}
+    CC -->|Caller| DD[Add to Caller RTP Array]
+    CC -->|Called| EE[Add to Called RTP Array]
+    
+    DD --> FF[Set iscaller = 1]
+    EE --> GG[Set iscaller = 0]
+    
+    FF --> HH[Initialize RTP Stream]
+    GG --> HH
+    
+    HH --> II[Link to CallBranch]
+    II --> JJ[Start Quality Monitoring]
+    
+    %% Multiple Stream Handling
+    JJ --> KK{Multiple Streams?}
+    KK -->|Yes| LL[Handle Stream Multiplexing]
+    KK -->|No| MM[Single Stream Processing]
+    
+    LL --> NN[Identify Primary Stream]
+    LL --> OO[Handle SSRC Changes]
+    LL --> PP[Manage Codec Changes]
+    
+    NN --> QQ[Select Highest Traffic Stream]
+    OO --> RR[Update Stream Mapping]
+    PP --> SS[Synchronize Codec Info]
+    
+    %% Call Termination
+    MM --> TT[Monitor Call State]
+    QQ --> TT
+    RR --> TT
+    SS --> TT
+    
+    TT --> UU[SIP BYE Received]
+    UU --> VV[Stop RTP Processing]
+    VV --> WW[Generate Final Statistics]
+    WW --> XX[Update CDR]
+    XX --> YY[Cleanup RTP Objects]
+    
+    %% Re-INVITE Handling
+    O --> ZZ[SIP Re-INVITE]
+    ZZ --> AAA[Update SDP Parameters]
+    AAA --> BBB[Modify Existing Streams]
+    BBB --> CCC[Handle Codec Changes]
+    CCC --> JJ
+    
+    %% Error Scenarios
+    V --> DDD[No SDP Match]
+    DDD --> EEE[Check NAT Scenarios]
+    EEE --> FFF[Apply NAT Rules]
+    FFF --> GGG[Retry Association]
+    GGG --> W
+    
+    %% Styling
+    classDef sip fill:#e1f5fe
+    classDef sdp fill:#f3e5f5
+    classDef rtp fill:#e8f5e8
+    classDef correlation fill:#fff3e0
+    classDef quality fill:#ffebee
+    classDef management fill:#fce4ec
+    classDef error fill:#ffcdd2
+    
+    class A,O,UU,ZZ sip
+    class B,C,D,G,H,I,J,K,M sdp
+    class Q,R,S,T,U,HH,JJ rtp
+    class V,W,X,Y,Z,CC correlation
+    class MM,NN,OO,PP,QQ,RR,SS quality
+    class TT,VV,WW,XX,YY management
+    class DDD,EEE,FFF,GGG error

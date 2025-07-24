@@ -1,0 +1,146 @@
+graph TD
+    A[RTP Packet Received] --> B[Sequence Analysis]
+    B --> C[Extract Sequence Number]
+    C --> D{Sequential?}
+    
+    D -->|Yes| E[Update Received Count]
+    D -->|No| F[Calculate Gap Size]
+    
+    F --> G{Gap Size}
+    G -->|1-10 packets| H[Update Loss Histogram sl1-sl10]
+    G -->|>10 packets| I[Update sl10+ Counter]
+    
+    H --> J[Update Total Loss Count]
+    I --> J
+    J --> K[Calculate Loss Percentage]
+    
+    E --> L[Timestamp Analysis]
+    L --> M[Extract RTP Timestamp]
+    M --> N[Calculate Inter-arrival Time]
+    N --> O[Calculate Transit Time]
+    O --> P[RFC 3550 Jitter Calculation]
+    
+    P --> Q[J = J + (|D| - J)/16]
+    Q --> R[Update Jitter Statistics]
+    R --> S[Max Jitter Check]
+    S --> T[Average Jitter Update]
+    
+    K --> U[Delay Analysis]
+    T --> U
+    U --> V[Calculate End-to-End Delay]
+    V --> W[Delay Histogram Update]
+    W --> X{Delay Range}
+    
+    X -->|<50ms| Y[d50++]
+    X -->|50-70ms| Z[d70++]
+    X -->|70-90ms| AA[d90++]
+    X -->|90-120ms| BB[d120++]
+    X -->|120-150ms| CC[d150++]
+    X -->|150-200ms| DD[d200++]
+    X -->|200-300ms| EE[d300++]
+    
+    Y --> FF[Jitter Buffer Processing]
+    Z --> FF
+    AA --> FF
+    BB --> FF
+    CC --> FF
+    DD --> FF
+    EE --> FF
+    
+    FF --> GG[Multiple Jitter Buffer Types]
+    GG --> HH[Fixed 200ms Buffer - F1]
+    GG --> II[Fixed 500ms Buffer - F2]
+    GG --> JJ[Adaptive Buffer - AD]
+    
+    HH --> KK[Burst Loss Calculation F1]
+    II --> LL[Burst Loss Calculation F2]
+    JJ --> MM[Burst Loss Calculation AD]
+    
+    KK --> NN[burstr_calculate Channel F1]
+    LL --> OO[burstr_calculate Channel F2]
+    MM --> PP[burstr_calculate Channel AD]
+    
+    NN --> QQ[MOS F1 Calculation]
+    OO --> RR[MOS F2 Calculation]
+    PP --> SS[MOS AD Calculation]
+    
+    QQ --> TT[ITU-T G.107 E-Model F1]
+    RR --> UU[ITU-T G.107 E-Model F2]
+    SS --> VV[ITU-T G.107 E-Model AD]
+    
+    TT --> WW[R-Factor = 93.2 - Loss_Factor - Burst_Factor]
+    UU --> WW
+    VV --> WW
+    
+    WW --> XX{R-Factor Range}
+    XX -->|R < 60| YY[MOS = 1.0 + 0.035*R + R*(R-60)*(100-R)*7e-6]
+    XX -->|R >= 60| ZZ[MOS = 1.0 + 0.035*R + R*(R-60)*(100-R)*7e-6]
+    XX -->|R < 0| AAA[MOS = 1.0]
+    XX -->|R > 100| BBB[MOS = 4.5]
+    
+    YY --> CCC[Store MOS F1 Score]
+    ZZ --> DDD[Store MOS F2 Score]
+    AAA --> EEE[Store MOS AD Score]
+    BBB --> EEE
+    
+    CCC --> FFF[Update Statistics Tables]
+    DDD --> FFF
+    EEE --> FFF
+    
+    %% RTCP Integration
+    FF --> GGG[RTCP Data Available?]
+    GGG -->|Yes| HHH[Process RTCP Reports]
+    GGG -->|No| FFF
+    
+    HHH --> III[Receiver Report Analysis]
+    III --> JJJ[Extract Fraction Lost]
+    III --> KKK[Extract Jitter Value]
+    III --> LLL[Extract Last SR Timestamp]
+    
+    JJJ --> MMM[Update RTCP Loss Stats]
+    KKK --> NNN[Update RTCP Jitter Stats]
+    LLL --> OOO[Calculate Round Trip Delay]
+    
+    MMM --> PPP[Correlate with RTP Stats]
+    NNN --> PPP
+    OOO --> PPP
+    PPP --> FFF
+    
+    %% Codec-Specific Processing
+    A --> QQQ[Codec Detection]
+    QQQ --> RRR{Codec Type}
+    RRR -->|G.711| SSS[G.711 Quality Model]
+    RRR -->|G.729| TTT[G.729 Quality Model]
+    RRR -->|G.722| UUU[G.722 Quality Model]
+    RRR -->|Opus| VVV[Opus Quality Model]
+    
+    SSS --> WWW[Apply Codec-Specific Factors]
+    TTT --> WWW
+    UUU --> WWW
+    VVV --> WWW
+    WWW --> WW
+    
+    %% Final Statistics Update
+    FFF --> XXX[Update rtp_stat Table]
+    XXX --> YYY[Update CDR Quality Fields]
+    YYY --> ZZZ[Generate Quality Alerts]
+    ZZZ --> AAAA[Real-time Monitoring Update]
+    
+    %% Styling
+    classDef input fill:#e1f5fe
+    classDef sequence fill:#f3e5f5
+    classDef timing fill:#e8f5e8
+    classDef quality fill:#fff3e0
+    classDef mos fill:#ffebee
+    classDef rtcp fill:#fce4ec
+    classDef codec fill:#e0f2f1
+    classDef output fill:#f3e5f5
+    
+    class A,QQQ input
+    class B,C,D,F,G,H,I,J,K sequence
+    class L,M,N,O,P,Q,R,S,T timing
+    class U,V,W,X,Y,Z,AA,BB,CC,DD,EE,FF quality
+    class GG,HH,II,JJ,KK,LL,MM,NN,OO,PP,QQ,RR,SS,TT,UU,VV,WW,XX,YY,ZZ,AAA,BBB,CCC,DDD,EEE mos
+    class GGG,HHH,III,JJJ,KKK,LLL,MMM,NNN,OOO,PPP rtcp
+    class RRR,SSS,TTT,UUU,VVV,WWW codec
+    class FFF,XXX,YYY,ZZZ,AAAA output

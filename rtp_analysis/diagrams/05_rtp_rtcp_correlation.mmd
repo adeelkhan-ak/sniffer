@@ -1,0 +1,161 @@
+graph TD
+    A[RTP Stream Active] --> B[RTCP Packet Arrives]
+    B --> C[Parse RTCP Header]
+    C --> D{RTCP Packet Type}
+    
+    D -->|200 - SR| E[Sender Report]
+    D -->|201 - RR| F[Receiver Report]
+    D -->|202 - SDES| G[Source Description]
+    D -->|203 - BYE| H[Goodbye]
+    D -->|204 - APP| I[Application Specific]
+    
+    E --> J[Extract SR Fields]
+    J --> K[NTP Timestamp]
+    J --> L[RTP Timestamp]
+    J --> M[Sender Packet Count]
+    J --> N[Sender Octet Count]
+    
+    F --> O[Extract RR Fields]
+    O --> P[SSRC of Source]
+    O --> Q[Fraction Lost]
+    O --> R[Cumulative Packets Lost]
+    O --> S[Extended Highest Seq]
+    O --> T[Interarrival Jitter]
+    O --> U[Last SR Timestamp LSR]
+    O --> V[Delay Since Last SR DLSR]
+    
+    K --> W[Calculate Round Trip Time]
+    L --> W
+    U --> W
+    V --> W
+    
+    W --> X[RTT = Current_NTP - LSR - DLSR]
+    X --> Y[Update RTCP RTT Stats]
+    Y --> Z[rtcp.rtd_sum += RTT]
+    Z --> AA[rtcp.rtd_count++]
+    AA --> BB[rtcp.rtd_max = max(rtcp.rtd_max, RTT)]
+    
+    Q --> CC[Update Loss Statistics]
+    CC --> DD[rtcp.loss = fraction_lost]
+    DD --> EE[rtcp.maxfr = max(rtcp.maxfr, fraction_lost)]
+    EE --> FF[rtcp.avgfr = (rtcp.avgfr * counter + fraction_lost) / (counter + 1)]
+    
+    T --> GG[Update Jitter Statistics]
+    GG --> HH[rtcp.maxjitter = max(rtcp.maxjitter, jitter)]
+    HH --> II[rtcp.avgjitter = (rtcp.avgjitter * counter + jitter) / (counter + 1)]
+    
+    R --> JJ[Correlate with RTP Loss]
+    JJ --> KK{RTP vs RTCP Loss}
+    KK -->|RTP Higher| LL[Network Issues Detected]
+    KK -->|RTCP Higher| MM[Receiver Issues Detected]
+    KK -->|Similar| NN[Normal Operation]
+    
+    %% RTCP XR Processing
+    D -->|207 - XR| OO[Extended Reports]
+    OO --> PP[Parse XR Blocks]
+    PP --> QQ[VoIP Metrics Block]
+    PP --> RR[Statistics Summary Block]
+    
+    QQ --> SS[Extract VoIP Metrics]
+    SS --> TT[Loss Rate]
+    SS --> UU[Discard Rate]
+    SS --> VV[Burst Density]
+    SS --> WW[Gap Density]
+    SS --> XX[MOS-LQ Score]
+    SS --> YY[MOS-CQ Score]
+    
+    TT --> ZZ[Update XR Loss Stats]
+    UU --> AAA[Update XR Discard Stats]
+    VV --> BBB[Update Burst Analysis]
+    WW --> BBB
+    XX --> CCC[Update XR MOS Stats]
+    YY --> CCC
+    
+    %% Correlation Analysis
+    FF --> DDD[Correlate RTCP with RTP]
+    II --> DDD
+    BB --> DDD
+    CCC --> DDD
+    
+    DDD --> EEE[Quality Correlation Analysis]
+    EEE --> FFF{Quality Consistency}
+    FFF -->|Consistent| GGG[High Confidence Metrics]
+    FFF -->|Inconsistent| HHH[Flag Quality Issues]
+    
+    GGG --> III[Use RTCP for Validation]
+    HHH --> JJJ[Investigate Discrepancies]
+    
+    III --> KKK[Enhanced Quality Reporting]
+    JJJ --> LLL[Generate Quality Alerts]
+    
+    %% Timing Correlation
+    M --> MMM[Correlate Packet Counts]
+    N --> MMM
+    MMM --> NNN[Compare with RTP Stats]
+    NNN --> OOO{Count Discrepancy}
+    OOO -->|Large| PPP[Packet Loss in Network]
+    OOO -->|Small| QQQ[Normal Variation]
+    
+    %% RTCP Feedback Loop
+    KKK --> RRR[RTCP Feedback Generation]
+    LLL --> RRR
+    RRR --> SSS[Generate Receiver Reports]
+    SSS --> TTT[Send RTCP Feedback]
+    
+    %% Database Integration
+    KKK --> UUU[Update Database Tables]
+    UUU --> VVV[CDR RTCP Fields]
+    VVV --> WWW[a_rtcp_loss, b_rtcp_loss]
+    VVV --> XXX[a_rtcp_maxfr, b_rtcp_maxfr]
+    VVV --> YYY[a_rtcp_avgfr, b_rtcp_avgfr]
+    VVV --> ZZZ[a_rtcp_maxjitter, b_rtcp_maxjitter]
+    VVV --> AAAA[a_rtcp_avgjitter, b_rtcp_avgjitter]
+    
+    %% Real-time Monitoring
+    KKK --> BBBB[Real-time Quality Updates]
+    BBBB --> CCCC[Quality Dashboard]
+    CCCC --> DDDD[Alert Generation]
+    DDDD --> EEEE[Notification System]
+    
+    %% SRTP RTCP Processing
+    B --> FFFF{SRTCP Encrypted?}
+    FFFF -->|Yes| GGGG[SRTCP Decryption]
+    FFFF -->|No| C
+    GGGG --> HHHH[Decrypt RTCP Payload]
+    HHHH --> C
+    
+    %% Error Handling
+    C --> IIII{Valid RTCP?}
+    IIII -->|No| JJJJ[Discard Invalid RTCP]
+    IIII -->|Yes| D
+    JJJJ --> KKKK[Log RTCP Error]
+    
+    %% Multiple Stream Correlation
+    DDD --> LLLL[Multi-stream Analysis]
+    LLLL --> MMMM{Multiple RTP Streams?}
+    MMMM -->|Yes| NNNN[Correlate Each Stream]
+    MMMM -->|No| KKK
+    NNNN --> OOOO[Stream-specific RTCP]
+    OOOO --> PPPP[Individual Quality Metrics]
+    PPPP --> KKK
+    
+    %% Styling
+    classDef input fill:#e1f5fe
+    classDef rtcp fill:#f3e5f5
+    classDef processing fill:#e8f5e8
+    classDef correlation fill:#fff3e0
+    classDef quality fill:#ffebee
+    classDef database fill:#fce4ec
+    classDef monitoring fill:#e0f2f1
+    classDef security fill:#ffcdd2
+    classDef error fill:#ff8a80
+    
+    class A,B input
+    class C,D,E,F,G,H,I,J,O,PP rtcp
+    class K,L,M,N,P,Q,R,S,T,U,V,W,X processing
+    class DDD,EEE,FFF,MMM,NNN,OOO,LLLL,MMMM,NNNN correlation
+    class Y,Z,AA,BB,CC,DD,EE,FF,GG,HH,II,SS,TT,UU,VV,WW,XX,YY quality
+    class UUU,VVV,WWW,XXX,YYY,ZZZ,AAAA database
+    class BBBB,CCCC,DDDD,EEEE,KKK,RRR,SSS,TTT monitoring
+    class FFFF,GGGG,HHHH security
+    class IIII,JJJJ,KKKK,HHH,JJJ,LLL error

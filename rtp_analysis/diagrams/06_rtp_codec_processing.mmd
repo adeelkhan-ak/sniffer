@@ -1,0 +1,198 @@
+graph TD
+    A[RTP Packet with Audio Payload] --> B[Extract Payload Type]
+    B --> C{Static or Dynamic PT?}
+    
+    C -->|Static| D[Standard Payload Types]
+    C -->|Dynamic| E[SDP RTPMAP Lookup]
+    
+    D --> F{Payload Type Value}
+    F -->|0| G[PCMU - G.711 μ-law]
+    F -->|8| H[PCMA - G.711 A-law]
+    F -->|18| I[G729 - G.729A]
+    F -->|9| J[G722 - 7kHz Audio]
+    F -->|4| K[G723 - G.723.1]
+    F -->|3| L[GSM - GSM 06.10]
+    
+    E --> M[Parse RTPMAP Line]
+    M --> N{Dynamic Codec}
+    N -->|96-127| O[OPUS]
+    N -->|96-127| P[H.264 Video]
+    N -->|96-127| Q[Other Dynamic]
+    
+    G --> R[Set Codec Parameters G.711μ]
+    H --> S[Set Codec Parameters G.711A]
+    I --> T[Set Codec Parameters G.729]
+    J --> U[Set Codec Parameters G.722]
+    K --> V[Set Codec Parameters G.723]
+    L --> W[Set Codec Parameters GSM]
+    O --> X[Set Codec Parameters OPUS]
+    
+    R --> Y[Sample Rate: 8000 Hz]
+    S --> Y
+    T --> Z[Sample Rate: 8000 Hz, 10ms frames]
+    U --> AA[Sample Rate: 16000 Hz]
+    V --> BB[Sample Rate: 8000 Hz, 30ms frames]
+    W --> CC[Sample Rate: 8000 Hz, 20ms frames]
+    X --> DD[Sample Rate: 48000 Hz, Variable frames]
+    
+    Y --> EE[Frame Size Calculation]
+    Z --> EE
+    AA --> EE
+    BB --> EE
+    CC --> EE
+    DD --> EE
+    
+    EE --> FF[Calculate Samples per Frame]
+    FF --> GG{Codec Type}
+    GG -->|G.711| HH[samples = packetization * 8]
+    GG -->|G.729| II[samples = packetization / 10 * 80]
+    GG -->|G.722| JJ[samples = packetization * 16]
+    GG -->|G.723| KK[samples = packetization == 30 ? 240 : 160]
+    GG -->|OPUS| LL[samples = frame_size * sample_rate / 1000]
+    
+    HH --> MM[Audio Processing G.711]
+    II --> NN[Audio Processing G.729]
+    JJ --> OO[Audio Processing G.722]
+    KK --> PP[Audio Processing G.723]
+    LL --> QQ[Audio Processing OPUS]
+    
+    MM --> RR[PCM Conversion]
+    NN --> SS[G.729 Decoding]
+    OO --> TT[G.722 Decoding]
+    PP --> UU[G.723 Decoding]
+    QQ --> VV[OPUS Decoding]
+    
+    RR --> WW[Linear PCM 16-bit]
+    SS --> XX[Decode to PCM]
+    TT --> YY[Wideband PCM]
+    UU --> ZZ[Decode to PCM]
+    VV --> AAA[High-Quality PCM]
+    
+    WW --> BBB[Digital Signal Processing]
+    XX --> BBB
+    YY --> BBB
+    ZZ --> BBB
+    AAA --> BBB
+    
+    BBB --> CCC[Energy Level Detection]
+    CCC --> DDD[Voice Activity Detection]
+    DDD --> EEE[Silence Detection]
+    EEE --> FFF[DTMF Detection]
+    
+    CCC --> GGG[Calculate Energy Levels]
+    GGG --> HHH[Update Energy Statistics]
+    
+    DDD --> III[VAD Algorithm]
+    III --> JJJ{Voice Detected?}
+    JJJ -->|Yes| KKK[Mark as Voice Frame]
+    JJJ -->|No| LLL[Mark as Silence Frame]
+    
+    EEE --> MMM[Silence Threshold Check]
+    MMM --> NNN{Below Threshold?}
+    NNN -->|Yes| OOO[Increment Silence Counter]
+    NNN -->|No| PPP[Reset Silence Counter]
+    
+    FFF --> QQQ[RFC 2833 DTMF Detection]
+    QQQ --> RRR[In-band DTMF Detection]
+    RRR --> SSS{DTMF Detected?}
+    SSS -->|Yes| TTT[Extract DTMF Digit]
+    SSS -->|No| UUU[Continue Processing]
+    
+    TTT --> VVV[Store DTMF Event]
+    VVV --> WWW[Update Call Events]
+    
+    %% Quality Analysis per Codec
+    KKK --> XXX[Codec-Specific Quality Analysis]
+    XXX --> YYY{Codec Quality Model}
+    YYY -->|G.711| ZZZ[G.711 Quality Factors]
+    YYY -->|G.729| AAAA[G.729 Quality Factors]
+    YYY -->|G.722| BBBB[G.722 Quality Factors]
+    YYY -->|OPUS| CCCC[OPUS Quality Factors]
+    
+    ZZZ --> DDDD[Base MOS: 4.4]
+    AAAA --> EEEE[Base MOS: 3.9]
+    BBBB --> FFFF[Base MOS: 4.2]
+    CCCC --> GGGG[Base MOS: 4.5]
+    
+    DDDD --> HHHH[Apply Loss Degradation]
+    EEEE --> HHHH
+    FFFF --> HHHH
+    GGGG --> HHHH
+    
+    HHHH --> IIII[Codec-Adjusted MOS]
+    IIII --> JJJJ[Final Quality Score]
+    
+    %% Audio Recording
+    BBB --> KKKK[Audio Recording Path]
+    KKKK --> LLLL{Recording Enabled?}
+    LLLL -->|Yes| MMMM[Write to RAW File]
+    LLLL -->|No| NNNN[Skip Recording]
+    
+    MMMM --> OOOO[Buffer Audio Data]
+    OOOO --> PPPP[Compress if Needed]
+    PPPP --> QQQQ[Write to Disk]
+    
+    %% Transcoding
+    BBB --> RRRR[Transcoding Path]
+    RRRR --> SSSS{Transcoding Required?}
+    SSSS -->|Yes| TTTT[Convert Codec Format]
+    SSSS -->|No| UUU
+    
+    TTTT --> UUUU[Target Codec Encoding]
+    UUUU --> VVVV[Output Transcoded Stream]
+    
+    %% Error Handling
+    B --> WWWW{Valid Payload?}
+    WWWW -->|No| XXXX[Invalid Payload Error]
+    WWWW -->|Yes| C
+    XXXX --> YYYY[Log Codec Error]
+    YYYY --> ZZZZ[Use Previous Codec]
+    
+    %% Codec Change Detection
+    EE --> AAAAA[Compare with Previous Codec]
+    AAAAA --> BBBBB{Codec Changed?}
+    BBBBB -->|Yes| CCCCC[Handle Codec Change]
+    BBBBB -->|No| BBB
+    
+    CCCCC --> DDDDD[Flush Previous Buffers]
+    DDDDD --> EEEEE[Reset Audio Processing]
+    EEEEE --> FFFFF[Initialize New Codec]
+    FFFFF --> BBB
+    
+    %% Multiple Codec Support
+    BBB --> GGGGG[Multi-codec Call Handling]
+    GGGGG --> HHHHH{Different Codecs per Direction?}
+    HHHHH -->|Yes| IIIII[Handle Asymmetric Codecs]
+    HHHHH -->|No| JJJJJ[Symmetric Codec Processing]
+    
+    IIIII --> KKKKK[Caller Codec Processing]
+    IIIII --> LLLLL[Called Codec Processing]
+    KKKKK --> MMMMM[Individual Quality Analysis]
+    LLLLL --> MMMMM
+    
+    %% Final Output
+    JJJJJ --> NNNNN[Update Codec Statistics]
+    MMMMM --> NNNNN
+    NNNNN --> OOOOO[Store in Database]
+    OOOOO --> PPPPP[Generate Reports]
+    
+    %% Styling
+    classDef input fill:#e1f5fe
+    classDef detection fill:#f3e5f5
+    classDef codec fill:#e8f5e8
+    classDef processing fill:#fff3e0
+    classDef quality fill:#ffebee
+    classDef audio fill:#fce4ec
+    classDef recording fill:#e0f2f1
+    classDef error fill:#ffcdd2
+    classDef output fill:#f8bbd9
+    
+    class A,B input
+    class C,F,N,WWWW,BBBBB detection
+    class D,E,G,H,I,J,K,L,M,O,P,Q,R,S,T,U,V,W,X codec
+    class Y,Z,AA,BB,CC,DD,EE,FF,GG,HH,II,JJ,KK,LL processing
+    class XXX,YYY,ZZZ,AAAA,BBBB,CCCC,DDDD,EEEE,FFFF,GGGG,HHHH,IIII,JJJJ quality
+    class MM,NN,OO,PP,QQ,RR,SS,TT,UU,VV,WW,XX,YY,ZZ,AAA,BBB audio
+    class KKKK,LLLL,MMMM,OOOO,PPPP,QQQQ,RRRR,SSSS,TTTT,UUUU,VVVV recording
+    class XXXX,YYYY,ZZZZ error
+    class NNNNN,OOOOO,PPPPP output

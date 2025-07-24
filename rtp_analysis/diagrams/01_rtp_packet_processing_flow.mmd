@@ -1,0 +1,82 @@
+graph TD
+    A[Network Packet Arrival] --> B[Protocol Detection]
+    B --> C{Is RTP?}
+    C -->|No| D[Other Protocol Handler]
+    C -->|Yes| E[Extract RTP Header]
+    
+    E --> F[Parse Header Fields]
+    F --> G[Version Check]
+    F --> H[Payload Type]
+    F --> I[Sequence Number]
+    F --> J[Timestamp]
+    F --> K[SSRC]
+    
+    G --> L{Version = 2?}
+    L -->|No| M[Discard Packet]
+    L -->|Yes| N[Find/Create RTP Stream]
+    
+    N --> O[SSRC Lookup]
+    O --> P{Stream Exists?}
+    P -->|No| Q[Create New RTP Object]
+    P -->|Yes| R[Use Existing Stream]
+    
+    Q --> S[Initialize RTP Statistics]
+    S --> T[Set Stream Parameters]
+    T --> U[Add to Call RTP Array]
+    
+    R --> V[Validate Sequence]
+    U --> V
+    V --> W[Calculate Jitter]
+    W --> X[Update Statistics]
+    
+    X --> Y[Codec Processing]
+    Y --> Z{Codec Change?}
+    Z -->|Yes| AA[Update Codec Info]
+    Z -->|No| BB[Extract Payload]
+    AA --> BB
+    
+    BB --> CC[Jitter Buffer Processing]
+    CC --> DD[Quality Analysis]
+    DD --> EE[MOS Calculation]
+    
+    EE --> FF[Update Database]
+    FF --> GG[Generate Statistics]
+    
+    %% SRTP Branch
+    H --> HH{SRTP Encrypted?}
+    HH -->|Yes| II[SRTP Decryption]
+    HH -->|No| BB
+    II --> JJ[Key Derivation]
+    JJ --> KK[Decrypt Payload]
+    KK --> BB
+    
+    %% Error Handling
+    V --> LL{Sequence Valid?}
+    LL -->|No| MM[Packet Loss Detection]
+    LL -->|Yes| W
+    MM --> NN[Update Loss Stats]
+    NN --> W
+    
+    %% RTCP Integration
+    CC --> OO[RTCP Correlation]
+    OO --> PP{RTCP Available?}
+    PP -->|Yes| QQ[Merge RTCP Data]
+    PP -->|No| DD
+    QQ --> DD
+    
+    %% Styling
+    classDef input fill:#e1f5fe
+    classDef processing fill:#f3e5f5
+    classDef validation fill:#e8f5e8
+    classDef quality fill:#fff3e0
+    classDef security fill:#ffebee
+    classDef output fill:#fce4ec
+    classDef error fill:#ffcdd2
+    
+    class A,B input
+    class E,F,G,H,I,J,K,N,O processing
+    class C,L,P,Z,HH,LL,PP validation
+    class W,X,DD,EE quality
+    class II,JJ,KK security
+    class FF,GG output
+    class M,MM,NN error
