@@ -11,6 +11,9 @@ This repository contains comprehensive analysis documentation for the VoIPmonito
 | **[CODEBASE_ANALYSIS.md](CODEBASE_ANALYSIS.md)** | Complete system architecture analysis | 10 major components, algorithms, performance optimizations |
 | **[COMPONENT_INDEX.md](COMPONENT_INDEX.md)** | File-by-file component reference | 150+ files indexed by functional area |
 | **[FLOW_DIAGRAMS_DOCUMENTATION.md](FLOW_DIAGRAMS_DOCUMENTATION.md)** | Detailed diagram explanations | Technical documentation for all flow diagrams |
+| **[API_REFERENCE.md](API_REFERENCE.md)** | Programming interface documentation | Classes, functions, constants, usage examples |
+| **[DATABASE_SCHEMA.md](DATABASE_SCHEMA.md)** | Database structure and optimization | Tables, indexes, queries, partitioning strategy |
+| **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** | Installation and configuration guide | System setup, performance tuning, troubleshooting |
 | **[.cursorrules](.cursorrules)** | Development guidelines | Coding standards and architectural patterns |
 
 ### Visual Flow Diagrams
